@@ -1,0 +1,1 @@
+npm i @google/generative-ai puppeteer openmeteo daisyui@latest react-icons xlsx lottie-web 
