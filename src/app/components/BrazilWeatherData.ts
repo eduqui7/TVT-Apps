@@ -7,52 +7,52 @@ const cities = [
 ]
 
 export async function fetchWeatherData() {
-    const tomorrow = new Date()
-    tomorrow.setDate(tomorrow.getDate() + 1)
-    tomorrow.setHours(0, 0, 0, 0)
+  const tomorrow = new Date()
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  tomorrow.setHours(0, 0, 0, 0)
+
+  const endDate = new Date(tomorrow)
+  endDate.setDate(endDate.getDate() + 3) // Changed from +2 to +3
+
+  const params = {
+    latitude: cities.map(city => city.lat),
+    longitude: cities.map(city => city.lon),
+    current: ["temperature_2m", "rain"],
+    daily: ["temperature_2m_max", "temperature_2m_min", "rain_sum"],
+    timezone: "America/Sao_Paulo",
+    start_date: cities.map(() => tomorrow.toISOString().split('T')[0]),
+    end_date: cities.map(() => endDate.toISOString().split('T')[0])
+  }
+
+  const responses = await fetchWeatherApi("https://api.open-meteo.com/v1/forecast", params)
   
-    const endDate = new Date(tomorrow)
-    endDate.setDate(endDate.getDate() + 2)
-  
-    const params = {
-      latitude: cities.map(city => city.lat),
-      longitude: cities.map(city => city.lon),
-      current: ["temperature_2m", "rain"],
-      daily: ["temperature_2m_max", "temperature_2m_min", "rain_sum"],
-      timezone: "America/Sao_Paulo",
-      start_date: cities.map(() => tomorrow.toISOString().split('T')[0]),
-      end_date: cities.map(() => endDate.toISOString().split('T')[0])
-    }
-  
-    const responses = await fetchWeatherApi("https://api.open-meteo.com/v1/forecast", params)
-    
-    return responses.map((response, index) => {
-      const current = response.current()!
-      const daily = response.daily()!
-      const utcOffsetSeconds = response.utcOffsetSeconds()
-  
-      return {
-        name: cities[index].name,
-        current: {
-          temperature: Math.round(current.variables(0)!.value()),
-          rain: Math.round(current.variables(1)!.value())
-        },
-        daily: {
-          dates: Array.from({ length: 3 }, (_, i) => 
-            new Date((Number(daily.time()) + utcOffsetSeconds + i * 86400) * 1000)),
-          maxTemp: Array.from(daily.variables(0)!.valuesArray()!).map(Math.round),
-          minTemp: Array.from(daily.variables(1)!.valuesArray()!).map(Math.round),
-          rainSum: Array.from(daily.variables(2)!.valuesArray()!).map(Math.round)
-        }
+  return responses.map((response, index) => {
+    const current = response.current()!
+    const daily = response.daily()!
+    const utcOffsetSeconds = response.utcOffsetSeconds()
+
+    return {
+      name: cities[index].name,
+      current: {
+        temperature: Math.round(current.variables(0)!.value()),
+        rain: Math.round(current.variables(1)!.value())
+      },
+      daily: {
+        dates: Array.from({ length: 3 }, (_, i) => 
+          new Date((Number(daily.time()) + utcOffsetSeconds + (i + 1) * 86400) * 1000)),
+        maxTemp: Array.from(daily.variables(0)!.valuesArray()!).slice(1).map(Math.round),
+        minTemp: Array.from(daily.variables(1)!.valuesArray()!).slice(1).map(Math.round),
+        rainSum: Array.from(daily.variables(2)!.valuesArray()!).slice(1).map(Math.round)
       }
-    })
-  }     
-  
+    }
+  })
+}
+
 import * as XLSX from 'xlsx'
 
 export function exportToExcel(weatherData: any[]) {
   const workbook = XLSX.utils.book_new()
-  
+
   const worksheet = XLSX.utils.json_to_sheet(
     weatherData.map(city => ({
       Cidade: city.name,
