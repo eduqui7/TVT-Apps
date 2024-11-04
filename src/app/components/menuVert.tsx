@@ -17,6 +17,7 @@ export default function MenuVert({ setSelectedComponent }: { setSelectedComponen
                         <li><a onClick={() => setSelectedComponent('instaEmb')}>Gerar Card Instagram</a></li>
                         <li><a onClick={() => setSelectedComponent('resumo')}>Resumo AI</a></li>
                         <li><a onClick={() => setSelectedComponent('rewrite')}>Título AI</a></li>
+                        <li><a onClick={() => setSelectedComponent('open')}>Open</a></li>
                     </ul>
                 </details>
             </li>
