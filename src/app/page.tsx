@@ -10,7 +10,6 @@ import XEmbed from './components/XEmbed'
 import WebScraper from './components/WebScraper'
 import BrazilWeather from './components/BrazilWeather'
 import ChartDataInput from './components/ChartDataInput'
-import TomorrowWeather from './components/TomorrowWeather'
 
 
 export default function Home() {
@@ -34,8 +33,6 @@ export default function Home() {
         return <BrazilWeather />
       case 'chart':
         return <ChartDataInput />
-      case 'temp':
-        return <TomorrowWeather />
       default:
         return <Welcome />
     }
